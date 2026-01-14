@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio</title>
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        * {
+            cursor: url('cursor.png'), auto;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            overflow-x: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        /* Responsive media elements */
+        img, video, canvas, iframe {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .screen {
+            width: 100%;
+            max-width: 100%;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+
+        .scroll-container {
+            height: 100vh;
+            width: 100%;
+            max-width: 100%;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            scroll-snap-type: y proximity;
+            scroll-behavior: smooth;
+        }
+        
+        .scroll-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scroll-section {
+            width: 100%;
+            max-width: 100%;
+            height: 100vh;
+            scroll-snap-align: start;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+
+        /* Shift main page image down */
+        #main-page-section {
+            background-position: center 45%;
+        }
+
+        /* Ensure hotspots only work on PCB section */
+        #pcb-section .hotspot {
+            pointer-events: auto;
+        }
+
+        .page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            max-width: 100%;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            overflow-y: auto;
+            overflow-x: hidden;
+            pointer-events: none;
+        }
+        
+        .page::-webkit-scrollbar {
+            display: none;
+        }
+
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        /* Scrollable pages with images */
+        #page-music,
+        #page-about {
+            overflow-y: scroll;
+            overflow-x: hidden;
+            background: #fff;
+            display: block;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        #page-music img,
+        #page-about img {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Projects page with clickable folders */
+        #page-projects {
+            overflow-y: scroll;
+            overflow-x: hidden;
+            background: #fff;
+            display: block;
+        }
+
+        #page-projects img {
+            width: 100%;
+            height: auto;
+            display: block;
+            position: relative;
+        }
+
+        /* Wrapper for projects image and folders */
+        .projects-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        /* Project folder hotspots */
+        .project-folder {
+            position: absolute;
+            cursor: url('cursor.png'), pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 10px;
+            z-index: 10;
+        }
+
+        .project-folder:hover {
+            box-shadow: 
+                inset 0 0 80px rgba(255, 255, 255, 0.6),
+                0 0 60px rgba(255, 255, 255, 0.8),
+                0 0 100px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Project detail pages */
+        .project-detail {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            max-width: 100%;
+            height: 100vh;
+            background: #fff;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 200;
+            overflow-y: auto;
+            overflow-x: hidden;
+            pointer-events: none;
+        }
+
+        .project-detail.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .project-detail::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Hide scrollbar on project detail pages */
+        #Folder1-detail,
+        #Folder2-detail,
+        #Folder3-detail,
+        #Folder4-detail {
+            /* Firefox */
+            scrollbar-width: none;
+            /* IE/Edge */
+            -ms-overflow-style: none;
+        }
+
+        /* Chrome/Safari/Edge */
+        #Folder1-detail::-webkit-scrollbar,
+        #Folder2-detail::-webkit-scrollbar,
+        #Folder3-detail::-webkit-scrollbar,
+        #Folder4-detail::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            display: none;
+        }
+
+        /* Hide scrollbar in the wrapper divs */
+        #Folder1-detail > div,
+        #Folder2-detail > div,
+        #Folder3-detail > div,
+        #Folder4-detail > div {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        #Folder1-detail > div::-webkit-scrollbar,
+        #Folder2-detail > div::-webkit-scrollbar,
+        #Folder3-detail > div::-webkit-scrollbar,
+        #Folder4-detail > div::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            display: none;
+        }
+
+        /* Clickable hotspot regions on PCB */
+        .hotspot {
+            position: absolute;
+            cursor: url('cursor.png'), pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 10px;
+        }
+
+        .hotspot:hover {
+            box-shadow: 
+                inset 0 0 80px rgba(255, 255, 255, 0.6),
+                0 0 60px rgba(255, 255, 255, 0.8),
+                0 0 100px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Left half - purple region (about) */
+        #hotspot-about {
+            left: 30%;
+            top: 30%;
+            width: 18%;
+            height: 45%;
+        }
+
+        /* Top right - music */
+        #hotspot-music {
+            right: 31%;
+            top: 27%;
+            width: 20%;
+            height: 25%;
+        }
+
+        /* Bottom right - projects */
+        #hotspot-projects {
+            right: 31%;
+            bottom: 23%;
+            width: 20%;
+            height: 25%;
+        }
+
+        /* Envelope section */
+        #closing-section {
+            position: relative;
+        }
+        
+        #closing-opened::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Back button for pages */
+        .back-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: url('cursor.png'), pointer;
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .page.active .back-button,
+        .project-detail.active .back-button {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .back-button:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .back-button::before {
+            content: '←';
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Smooth fade transitions */
+        .fade-transition {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main scroll container -->
+    <div id="scroll-container" class="scroll-container">
+        <!-- Section 1: Main page -->
+        <div id="main-page-section" class="scroll-section" style="background-image: url('main_page.png');"></div>
+        
+        <!-- Section 2: PCB with clickable regions -->
+        <div id="pcb-section" class="scroll-section" style="background-image: url('main_page2.png');">
+            <div id="hotspot-about" class="hotspot"></div>
+            <div id="hotspot-music" class="hotspot"></div>
+            <div id="hotspot-projects" class="hotspot"></div>
+        </div>
+        
+        <!-- Section 3: Envelope (closed, then opens when clicked) -->
+        <div id="closing-section" class="scroll-section">
+            <div id="closing-envelope" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('closing_.png'); background-size: cover; background-position: center; cursor: url('cursor.png'), pointer; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2;"></div>
+            <div id="closing-opened" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; opacity: 0; pointer-events: none; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1); display: flex; justify-content: center; align-items: flex-start; z-index: 1;">
+                <img src="closing.png" alt="Contact" style="width: 100%; height: auto; object-fit: contain; display: block; max-width: 100%;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Full-screen pages (overlay) -->
+    <div id="page-about" class="page">
+        <div class="back-button" id="back-about"></div>
+        <img src="about_Me.png" alt="About Me">
+    </div>
+    <div id="page-music" class="page">
+        <div class="back-button" id="back-music"></div>
+        <img src="music.png" alt="Music">
+    </div>
+    <div id="page-projects" class="page">
+        <div class="back-button" id="back-projects"></div>
+        <div class="projects-wrapper">
+            <img src="projects.png" alt="Projects" id="projects-image">
+            <!-- Clickable folder hotspots - RED BOXES VISIBLE FOR POSITIONING -->
+            <div class="project-folder" data-project="Folder1" style="top: 26%; left: 36.5%; width: 9%; height: 10%;"></div>
+            <div class="project-folder" data-project="Folder2" style="top: 26%; left: 48%; width: 9%; height: 10%;"></div>
+            <div class="project-folder" data-project="Folder3" style="top: 26%; left: 60%; width: 9%; height: 10%;"></div>
+            <div class="project-folder" data-project="Folder4" style="top: 26%; left: 71.5%; width: 9%; height: 10%;"></div>
+        </div>
+    </div>
+
+    <!-- Project detail pages -->
+    <div id="Folder1-detail" class="project-detail" style="background: #f3efe9; overflow-x: hidden; overflow-y: auto; display: flex; justify-content: center; width: 100%;">
+        <div class="back-button" onclick="closeProjectDetail()"></div>
+        <div style="width: 100%; max-width: min(900px, 100%); margin: 0 auto; padding: 24px; box-sizing: border-box;">
+            <iframe src="StressDetector/StressDetector.html" style="width: 100%; min-height: 100vh; border: none; display: block; max-width: 100%;"></iframe>
+        </div>
+    </div>
+
+    <div id="Folder2-detail" class="project-detail" style="background: #f3efe9; overflow-x: hidden; overflow-y: auto; display: flex; justify-content: center; width: 100%;">
+        <div class="back-button" onclick="closeProjectDetail()"></div>
+        <div style="width: 100%; max-width: min(900px, 100%); margin: 0 auto; padding: 24px; box-sizing: border-box;">
+            <iframe src="CoLabo/CoLabo.html" style="width: 100%; min-height: 100vh; border: none; display: block; max-width: 100%;"></iframe>
+        </div>
+    </div>
+
+    <div id="Folder3-detail" class="project-detail" style="background: #f3efe9; overflow-x: hidden; overflow-y: auto; display: flex; justify-content: center; width: 100%;">
+        <div class="back-button" onclick="closeProjectDetail()"></div>
+        <div style="width: 100%; max-width: min(900px, 100%); margin: 0 auto; padding: 24px; box-sizing: border-box;">
+            <iframe src="TurtlAI/TurtlAI.html" style="width: 100%; min-height: 100vh; border: none; display: block; max-width: 100%;"></iframe>
+        </div>
+    </div>
+
+    <div id="Folder4-detail" class="project-detail" style="background: #f3efe9; overflow-x: hidden; overflow-y: auto; display: flex; justify-content: center; width: 100%;">
+        <div class="back-button" onclick="closeProjectDetail()"></div>
+        <div style="width: 100%; max-width: min(900px, 100%); margin: 0 auto; padding: 24px; box-sizing: border-box;">
+            <iframe src="StreakIT/StreakIT.html" style="width: 100%; min-height: 100vh; border: none; display: block; max-width: 100%;"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // Navigation state
+        let currentPage = null;
+        let currentProjectDetail = null;
+        const scrollContainer = document.getElementById('scroll-container');
+        
+        // Hotspot click handlers
+        document.getElementById('hotspot-about').addEventListener('click', () => {
+            showPage('page-about');
+        });
+
+        document.getElementById('hotspot-music').addEventListener('click', () => {
+            showPage('page-music');
+        });
+
+        document.getElementById('hotspot-projects').addEventListener('click', () => {
+            showPage('page-projects');
+        });
+
+        // Envelope click handler - open envelope in place
+        let envelopeOpen = false;
+        document.getElementById('closing-envelope').addEventListener('click', () => {
+            const closedEnvelope = document.getElementById('closing-envelope');
+            const openedEnvelope = document.getElementById('closing-opened');
+            
+            closedEnvelope.style.opacity = '0';
+            closedEnvelope.style.pointerEvents = 'none';
+            openedEnvelope.style.opacity = '1';
+            openedEnvelope.style.pointerEvents = 'auto';
+            envelopeOpen = true;
+        });
+
+        // ESC key closes project details, envelope, or pages
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // Priority: project detail > envelope > main pages
+                if (currentProjectDetail) {
+                    closeProjectDetail();
+                } else if (envelopeOpen) {
+                    // Close envelope
+                    const closedEnvelope = document.getElementById('closing-envelope');
+                    const openedEnvelope = document.getElementById('closing-opened');
+                    
+                    closedEnvelope.style.opacity = '1';
+                    closedEnvelope.style.pointerEvents = 'auto';
+                    openedEnvelope.style.opacity = '0';
+                    openedEnvelope.style.pointerEvents = 'none';
+                    envelopeOpen = false;
+                } else {
+                    // Close any open pages
+                    hidePage();
+                }
+            }
+        });
+
+        // Show page function
+        function showPage(pageId) {
+            // Hide all pages first
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show the selected page
+            const page = document.getElementById(pageId);
+            page.classList.add('active');
+            currentPage = pageId;
+            
+            // Disable scroll when page is open
+            scrollContainer.style.overflow = 'hidden';
+        }
+
+        // Hide page and return to PCB
+        function hidePage() {
+            if (currentPage) {
+                const page = document.getElementById(currentPage);
+                page.classList.remove('active');
+                currentPage = null;
+                
+                // Re-enable scroll
+                scrollContainer.style.overflow = 'scroll';
+                
+                // Scroll back to PCB section (section 2)
+                const pcbSection = document.getElementById('pcb-section');
+                pcbSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Prevent scroll on main container when page is open (but allow page scroll)
+        scrollContainer.addEventListener('wheel', (e) => {
+            if (currentPage) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Touch support for mobile
+        scrollContainer.addEventListener('touchmove', (e) => {
+            if (currentPage) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Allow scrolling on individual pages
+        document.querySelectorAll('.page').forEach(page => {
+            page.addEventListener('wheel', (e) => {
+                e.stopPropagation();
+            });
+        });
+
+        // Back button click handlers
+        document.getElementById('back-about').addEventListener('click', hidePage);
+        document.getElementById('back-music').addEventListener('click', hidePage);
+        document.getElementById('back-projects').addEventListener('click', hidePage);
+
+        // Project folder click handlers
+        document.querySelectorAll('.project-folder').forEach(folder => {
+            folder.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent triggering parent events
+                const projectId = folder.getAttribute('data-project');
+                openProjectDetail(projectId);
+            });
+        });
+
+        function openProjectDetail(projectId) {
+            // Hide all project details first
+            document.querySelectorAll('.project-detail').forEach(detail => {
+                detail.classList.remove('active');
+            });
+
+            // Show the selected project detail
+            const detailPage = document.getElementById(projectId + '-detail');
+            if (detailPage) {
+                detailPage.classList.add('active');
+                currentProjectDetail = projectId + '-detail';
+            }
+        }
+
+        function closeProjectDetail() {
+            if (currentProjectDetail) {
+                const detailPage = document.getElementById(currentProjectDetail);
+                detailPage.classList.remove('active');
+                currentProjectDetail = null;
+            }
+        }
+    </script>
+</body>
+</html>
+
